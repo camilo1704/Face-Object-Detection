@@ -22,17 +22,18 @@ def split_dataset(images_keys:List, train_perc=.7, valid_perc=.2)->Dict:
     }
     return dataset_split
 
-def save_processed_yolo_dataset(dataset_dict:Dict, raw_dataset_path:Text, save_dataset_path:Text):
+def save_processed_yolo_dataset(dataset_dict:Dict, images_bbox:Dict, raw_dataset_path:Text, save_dataset_path:Text):
     for split in dataset_dict.keys():
         save_path = join(save_dataset_path, split)
         for key in dataset_dict[split]:
-            pil_img = Image.open(join(raw_dataset_path, "images", key+ ".jpg"))
+            print(key)
+            pil_img = Image.open(join(raw_dataset_path, "originalPics", key+ ".jpg"))
             x_l, y_l = pil_img.size
             yolo_img_key = "images/"+key.replace("/","%")+".jpg"
             pil_img.save(join(save_path, yolo_img_key))
             yolo_labels_file_name = yolo_img_key.replace("images", "labels").replace("jpg", "txt")
             f = open(join(save_path,yolo_labels_file_name), "a")
-            for bbox in image_bboxes[key]:
+            for bbox in images_bbox[key]:
                 x_center = int(float(bbox[3]))
                 y_center = int(float(bbox[4]))
                 r_y = int(float(bbox[0]))
@@ -80,37 +81,8 @@ def get_images_keys_with_annotations(dataset_root_path:str):
                 if i>number_bboxes:
                     i=0
                     name=False
-
-        
         crs.close()
-    
-    images_keys = list(image_bboxes.keys())
-    return images_keys
-
-#     #print(list(image_bboxes.keys())[0])
-#     key = "2002/07/25/big/img_15"
-#     print(image_bboxes[key])
-#     pil_img = Image.open(join(images_path, key+ ".jpg"))
-#     draw = ImageDraw.Draw(pil_img)
-#     x_l, y_l = pil_img.size
-#     yolo_img_key = "images/"+key.replace("/","%")+".jpg"
-#     pil_img.save(join(save_root_path, yolo_img_key))
-#     yolo_labels_file_name = yolo_img_key.replace("images", "labels").replace("jpg", "txt")
-#     f = open(join(save_root_path,yolo_labels_file_name), "a")
-#     for bbox in image_bboxes[key]:
-#         x_center = int(float(bbox[3]))
-#         y_center = int(float(bbox[4]))
-#         r_y = int(float(bbox[0]))
-#         r_x = int(float(bbox[1]))
-#         line = "0 " + str(x_center/x_l)+" "+str(y_center/y_l) + " "+str(2*r_x/x_l) + " " +str(2*r_y/y_l)+"\n"
-#         f.write(line)
-#         print(x_center, y_center)
-#         draw.rectangle(((x_center-r_x, y_center-r_y), (x_center+r_x, y_center+r_y)), fill=None)
-#     f.close()
-#     plt.imshow(np.array(pil_img))
-#     plt.show()
-#    # print(image_bboxes[list(image_bboxes.keys())[0]])
-
+    return image_bboxes
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -119,6 +91,6 @@ if __name__ == "__main__":
 
     args, _ = parser.parse_known_args()
 
-    images_keys = get_images_keys_with_annotations(args.dataset_root_path)
-    dataset_split = split_dataset(images_keys)
-    save_processed_yolo_dataset(dataset_split, args.dataset_root_path, args.save_root_path )
+    images_keys_with_annotations = get_images_keys_with_annotations(args.dataset_root_path)
+    dataset_split = split_dataset(list(images_keys_with_annotations.keys()))
+    save_processed_yolo_dataset(dataset_split, images_keys_with_annotations, args.dataset_root_path, args.save_root_path )
