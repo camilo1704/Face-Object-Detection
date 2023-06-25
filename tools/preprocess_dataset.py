@@ -10,7 +10,7 @@ from typing import Text, Dict, List
 
 def split_dataset(images_keys:List, train_perc=.7, valid_perc=.2)->Dict:
     """
-    return dataset split
+    return dataset split for training, validation and test.
     """
     assert train_perc+valid_perc<1
 
@@ -22,14 +22,17 @@ def split_dataset(images_keys:List, train_perc=.7, valid_perc=.2)->Dict:
     }
     return dataset_split
 
+
 def save_processed_yolo_dataset(dataset_dict:Dict, images_bbox:Dict, raw_dataset_path:Text, save_dataset_path:Text):
+    """
+    Save images and bbox text files with yolov8 dataset format
+    """
     for split in dataset_dict.keys():
         save_path = join(save_dataset_path, split)
         for key in dataset_dict[split]:
-            print(key)
             pil_img = Image.open(join(raw_dataset_path, "originalPics", key+ ".jpg"))
             x_l, y_l = pil_img.size
-            yolo_img_key = "images/"+key.replace("/","%")+".jpg"
+            yolo_img_key = join("images", key.replace("/","%")+".jpg")
             pil_img.save(join(save_path, yolo_img_key))
             yolo_labels_file_name = yolo_img_key.replace("images", "labels").replace("jpg", "txt")
             f = open(join(save_path,yolo_labels_file_name), "a")
@@ -52,15 +55,12 @@ def get_images_keys_with_annotations(dataset_root_path:str):
       |--images
         |--2002
     """
-
-
     labels_path = join(dataset_root_path,'annotations', 'FDDB-folds')
 
     label_list = [f for f in listdir(labels_path) if isfile(join(labels_path, f))]
     label_list = [label_file for label_file in label_list if "ellipse" in label_file ]
 
     image_bboxes = {}
-
     for label_file in label_list:
         crs = open(join(labels_path, label_file), "r")
         i=0
@@ -83,6 +83,7 @@ def get_images_keys_with_annotations(dataset_root_path:str):
                     name=False
         crs.close()
     return image_bboxes
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
