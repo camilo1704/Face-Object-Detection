@@ -27,11 +27,11 @@ Training metrics are shown bellow with P, R, F1 and PR curves.
 </p>
 
 <p align="middle">
-<img src="./results/P_curve.png" width="400" /> 
-<img src="./results/R_curve.png" width="400" />
+<img src="./results/P_curve.png" width="300" /> 
+<img src="./results/R_curve.png" width="300" />
 </p>
 
 <p align="middle">
-<img src="./results/F1_curve.png" width="400" />
-<img src="./results/PR_curve.png" width="400" />
+<img src="./results/F1_curve.png" width="300" />
+<img src="./results/PR_curve.png" width="300" />
 </p>
